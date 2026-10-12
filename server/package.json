@@ -8,8 +8,11 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.0",
+    "googleapis": "^185.0.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.8.0"
   }
 }

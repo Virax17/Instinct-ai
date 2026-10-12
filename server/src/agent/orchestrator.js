@@ -1,17 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { config } from "../config.js";
 import { Message, Usage } from "../db/models.js";
-import { SYSTEM_PROMPT } from "./prompts.js";
+import { buildContext, loadHistory } from "./context.js";
 
 const anthropic = new Anthropic({ apiKey: config.anthropicApiKey });
-
-async function loadHistory(userId) {
-  const rows = await Message.find({ userId })
-    .sort({ createdAt: -1 })
-    .limit(config.historyLimit)
-    .lean();
-  return rows.reverse().map((m) => ({ role: m.role, content: m.text }));
-}
 
 /**
  * Channel-agnostic entry point. Input: { userId, text }.
@@ -19,14 +11,14 @@ async function loadHistory(userId) {
  */
 export async function handleMessage({ userId, text }, emit) {
   await Message.create({ userId, role: "user", text });
-  const messages = await loadHistory(userId);
   const started = Date.now();
 
   try {
+    const { system, messages } = await buildContext(userId);
     const stream = anthropic.messages.stream({
       model: config.model,
       max_tokens: config.maxTokens,
-      system: SYSTEM_PROMPT,
+      system,
       messages,
     });
     stream.on("text", (delta) => emit({ type: "delta", text: delta }));

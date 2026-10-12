@@ -1,17 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
-export default function App() {
+function SignIn({ error }) {
+  return (
+    <div className="app center">
+      <h1>Instinct</h1>
+      <p>Your personal AI assistant. Sign in to connect your Gmail.</p>
+      {error && <p className="error">Sign-in failed: {error}</p>}
+      <a className="btn" href="/auth/google">Sign in with Google</a>
+    </div>
+  );
+}
+
+function Chat({ user, onLogout }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [gmail, setGmail] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    fetch("/api/history")
-      .then((r) => r.json())
-      .then(setMessages)
-      .catch(() => {});
+    fetch("/api/history").then((r) => r.json()).then(setMessages).catch(() => {});
+    fetch("/api/gmail/status").then((r) => r.json()).then(setGmail).catch(() => {});
 
     const es = new EventSource("/api/stream");
     es.onmessage = (e) => {
@@ -56,7 +66,14 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>Instinct</header>
+      <header>
+        <span>Instinct</span>
+        <span className="meta">
+          {gmail?.connected ? `Gmail: ${gmail.email}` : gmail ? <a href="/auth/google">Reconnect Gmail</a> : ""}
+          {" · "}
+          {user.email} · <button className="link" onClick={onLogout}>Sign out</button>
+        </span>
+      </header>
       <main>
         {messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
@@ -76,4 +93,25 @@ export default function App() {
       </form>
     </div>
   );
+}
+
+export default function App() {
+  const [user, setUser] = useState(undefined); // undefined = loading, null = signed out
+  const authError = new URLSearchParams(window.location.search).get("auth_error");
+
+  useEffect(() => {
+    fetch("/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setUser)
+      .catch(() => setUser(null));
+    if (window.location.search) window.history.replaceState({}, "", "/");
+  }, []);
+
+  async function logout() {
+    await fetch("/auth/logout", { method: "POST" });
+    setUser(null);
+  }
+
+  if (user === undefined) return null;
+  return user ? <Chat user={user} onLogout={logout} /> : <SignIn error={authError} />;
 }

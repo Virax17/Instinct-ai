@@ -11,3 +11,10 @@ form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #e5e5ea; }
 input { flex: 1; padding: 10px 12px; border: 1px solid #d1d1d6; border-radius: 10px; font-size: 16px; }
 button { padding: 10px 16px; border: 0; border-radius: 10px; background: #0a84ff; color: #fff; font-size: 16px; cursor: pointer; }
 button:disabled { opacity: 0.5; cursor: default; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.meta { font-weight: 400; font-size: 12px; color: #6e6e73; }
+.meta a { color: #0a84ff; }
+.link { background: none; color: #0a84ff; padding: 0; font-size: 12px; }
+.center { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+.btn { display: inline-block; margin-top: 12px; padding: 10px 18px; border-radius: 10px; background: #0a84ff; color: #fff; text-decoration: none; }
+.error { color: #d70015; }
