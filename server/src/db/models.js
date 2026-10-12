@@ -61,7 +61,21 @@ const usageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const User = mongoose.model("User", userSchema);
+const toolRunSchema = new mongoose.Schema(
+  {
+    userId: { type: String, required: true, index: true },
+    tool: String,
+    risk: String,
+    input: mongoose.Schema.Types.Mixed,
+    output: mongoose.Schema.Types.Mixed,
+    status: { type: String, enum: ["ok", "error", "blocked"] },
+    durationMs: Number,
+  },
+  { timestamps: true }
+);
+
+export const ToolRun = mongoose.model("ToolRun", toolRunSchema);
+export const User =mongoose.model("User", userSchema);
 export const Integration = mongoose.model("Integration", integrationSchema);
 export const Message = mongoose.model("Message", messageSchema);
 export const MemoryDoc = mongoose.model("MemoryDoc", memoryDocSchema);

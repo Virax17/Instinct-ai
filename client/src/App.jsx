@@ -17,6 +17,7 @@ function Chat({ user, onLogout }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [gmail, setGmail] = useState(null);
+  const [status, setStatus] = useState("");
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +27,10 @@ function Chat({ user, onLogout }) {
     const es = new EventSource("/api/stream");
     es.onmessage = (e) => {
       const event = JSON.parse(e.data);
-      if (event.type === "delta") {
+      if (event.type === "status") {
+        setStatus(event.message);
+      } else if (event.type === "delta") {
+        setStatus("");
         setMessages((prev) => {
           const last = prev[prev.length - 1];
           if (last?.role === "assistant" && last.streaming) {
@@ -36,8 +40,10 @@ function Chat({ user, onLogout }) {
         });
       } else if (event.type === "done") {
         setMessages((prev) => prev.map((m) => ({ ...m, streaming: false })));
+        setStatus("");
         setBusy(false);
       } else if (event.type === "error") {
+        setStatus("");
         setMessages((prev) => [...prev, { role: "assistant", text: `Error: ${event.message}` }]);
         setBusy(false);
       }
@@ -80,6 +86,9 @@ function Chat({ user, onLogout }) {
             <ReactMarkdown>{m.text}</ReactMarkdown>
           </div>
         ))}
+        {(status || (busy && messages[messages.length - 1]?.role === "user")) && (
+          <div className="status">{status || "Thinking..."}</div>
+        )}
         <div ref={bottomRef} />
       </main>
       <form onSubmit={send}>

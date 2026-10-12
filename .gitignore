@@ -5,3 +5,9 @@ dist/
 !.env.example
 *.log
 .DS_Store
+
+# Credentials and key files (never commit)
+client_secret*.json
+caramel-medley-*.json
+*.pem
+*.key

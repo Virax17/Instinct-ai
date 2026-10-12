@@ -18,3 +18,4 @@ header { display: flex; justify-content: space-between; align-items: center; gap
 .center { align-items: center; justify-content: center; text-align: center; gap: 8px; }
 .btn { display: inline-block; margin-top: 12px; padding: 10px 18px; border-radius: 10px; background: #0a84ff; color: #fff; text-decoration: none; }
 .error { color: #d70015; }
+.status { align-self: flex-start; font-size: 13px; color: #6e6e73; font-style: italic; }
